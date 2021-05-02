@@ -30,7 +30,7 @@ class Particle {
 			if (parseInt(this.size) <= 0) {
 				this.size = 0;
 				this.age = 0;
-				this.life = Math.random() * 1500 + 100;
+				this.life = Math.random() * 1500 + 1000;
 				this.setPos(Math.random() * width, Math.random() * height);
 			}
 		}
@@ -148,7 +148,7 @@ class FlowField {
 			// let vel = vortex(particle.x, particle.y);
 			// particle.update(vel[0], vel[1]);
 
-			let theta = (this.noise.noise3D(particle.x * this.scale, particle.y * this.scale, this.depth) + 1) * Math.PI;
+			let theta = this.noise.noise3D(particle.x * this.scale, particle.y * this.scale, this.depth) * Math.PI;
 			particle.update(Math.cos(theta), Math.sin(theta));
 
 			particle.draw();
