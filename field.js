@@ -97,13 +97,15 @@ class Particle {
 
 	draw() {
 		let dx = this.x - this.px; let dy = this.y - this.py;
-		let theta = ((Math.atan(dy/dx) / (Math.PI / 2)) + 1) * 180;
+		let theta = Math.atan2(dx, dy) * 180 / Math.PI;
+		if (theta < 0) theta += 360;
 
 		// let nx = this.x - width / 2, ny = this.y - height / 2;
 		// let calc = (1 - (Math.sqrt(nx*nx + ny*ny) / Math.sqrt(width*width/4 + height*height/4))) * 100;
 		// stroke(theta, calc, calc);
 		stroke(theta, this.sat, this.bright);
 		// stroke(theta, 45, 70);
+		// stroke(50, 100, theta * 100 + 155);
 		strokeWeight(Math.max(0, parseInt(this.size)));
 		line(this.x, this.y, this.px, this.py);
 	}
@@ -114,7 +116,7 @@ function vortex(x, y) {
 	x -= width / 2;
 	y -= height / 2;
 
-	let r = x*x + y*y;
+	let r = Math.sqrt(x*x + y*y);
 	let vx = -y / r;
 	let vy = x / r;
 
