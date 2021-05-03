@@ -2,7 +2,7 @@
 
 
 class Particle {
-	constructor(x, y, size) {
+	constructor(x, y, size, mass = 1) {
 		this.setPos(x, y);
 		this.sat = Math.random() * 30 + 30;
 		this.bright = Math.random() * 60 + 40;
@@ -13,6 +13,8 @@ class Particle {
 		this.trueSize = size;
 		this.size = 0;
 		this.sizeInc = this.trueSize / 600;
+
+		this.mass = mass;
 	}
 
 	setPos(x, y) {
@@ -25,12 +27,12 @@ class Particle {
 	}
 
 	update(dx, dy) {
+		// kill the particle if it lives too long (useful for when using simplex noise since the particles bunch up together after a while)
 		if (this.age++ >= this.life) {
 			this.size -= this.sizeInc;
 			if (parseInt(this.size) <= 0) {
 				this.size = 0;
 				this.age = 0;
-				this.life = Math.random() * 700 + 100;
 				this.setPos(Math.random() * width, Math.random() * height);
 			}
 		}
@@ -38,12 +40,11 @@ class Particle {
 			this.size += this.sizeInc;
 		}
 
-		const maxv = 1;
-		this.vx += dx / 5;
-		this.vy += dy / 5;
+		this.vx += dx / this.mass;
+		this.vy += dy / this.mass;
 		let m = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-		if (m > maxv) {
-			this.vx /= m / maxv; this.vy /= m / maxv;
+		if (m > maxParticleVelocity) {
+			this.vx /= m / maxParticleVelocity; this.vy /= m / maxParticleVelocity;
 		}
 
 		this.px = this.x;
@@ -52,110 +53,77 @@ class Particle {
 		this.y += this.vy;
 
 
-		if (this.x < -this.size) {
-			this.x = width + this.size;
-			this.px = this.x;
-
-			this.y = Math.random() * height;
-			this.py = this.y;
-
-			this.vx = 0;
-			this.vy = 0;
-		}
-		else if (this.x >= width + this.size) {
-			this.x = -this.size;
-			this.px = this.x;
-
-			this.y = Math.random() * height;
-			this.py = this.y;
-
-			this.vx = 0;
-			this.vy = 0;
-		}
-		
-		if (this.y < -this.size) {
-			this.y = height + this.size;
-			this.py = this.y;
-
-			this.x = Math.random() * width;
-			this.px = this.x;
-
-			this.vx = 0;
-			this.vy = 0;
-		}
-		else if (this.y >= height + this.size) {
-			this.y = -this.size;
-			this.py = this.y;
-
-			this.x = Math.random() * width;
-			this.px = this.x;
-
-			this.vx = 0;
-			this.vy = 0;
+		// if the particle leaves the screen just kill it so that it is placed somewhere else
+		if (this.x < -this.size || this.x >= width + this.size || this.y < -this.size || this.y >= height + this.size) {
+			this.age = this.life;
+			this.size = 0;
 		}
 	}
 
 	draw() {
+		// use direction the particle is traveling to color it
 		let dx = this.x - this.px; let dy = this.y - this.py;
 		let theta = Math.atan2(dx, dy) * 180 / Math.PI;
 		if (theta < 0) theta += 360;
 
-		// let nx = this.x - width / 2, ny = this.y - height / 2;
-		// let calc = (1 - (Math.sqrt(nx*nx + ny*ny) / Math.sqrt(width*width/4 + height*height/4))) * 100;
-		// stroke(theta, calc, calc);
 		stroke(theta, this.sat, this.bright);
-		// stroke(theta, 45, 70);
-		// stroke(50, 100, theta * 100 + 155);
 		strokeWeight(Math.max(0, parseInt(this.size)));
 		line(this.x, this.y, this.px, this.py);
 	}
 }
 
-
-function vortex(x, y) {
-	x -= width / 2;
-	y -= height / 2;
-
-	let r = Math.sqrt(x*x + y*y);
-	let vx = -y / r;
-	let vy = x / r;
-
-	return [vx, vy];
-}
-
-
 class FlowField {
-	constructor(width, height, count = 1000) {
+	constructor(width, height, count, F) {
 		this.width = width;
 		this.height = height;
-
-		this.noise = new window.SimplexNoise();
-		this.scale = 1 / 1000;
-		this.depth = 0;
-
-		this.ratio = 1;
-		this.add = 0.01;
-		this.rdepth = 5;
+		this.F = F;
 
 		this.particles = [];
+		// place each particle on the screen and set its size
 		for (let i = 0; i < count; ++i) {
-			this.particles.push(new Particle(Math.random() * this.width, Math.random() * this.height, Math.random() * 10 + 20));
+			let xCoord = Math.random() * this.width;
+			let yCoord = Math.random() * this.height;
+			let particleSize = parseInt(Math.random() * (maxParticleSize - minParticleSize)) + minParticleSize;
+			let particleMass = 3; // the particle's mass determines how much it is influenced by the vector field each frame
+			this.particles.push(new Particle(xCoord, yCoord, particleSize, particleMass));
 		}
 	}
 
 	draw() {
 		for (let particle of this.particles) {
-			// let vel = vortex(particle.x, particle.y);
-			// particle.update(vel[0], vel[1]);
-
-			let theta = this.noise.noise3D(particle.x * this.scale, particle.y * this.scale, this.depth) * Math.PI;
-			particle.update(Math.cos(theta), Math.sin(theta));
+			let vel = this.F(particle.x, particle.y);
+			particle.update(vel[0], vel[1]);
 
 			particle.draw();
 		}
-
-		this.depth += 0.004;
 	}
+}
+
+
+
+function vortex(x, y) {
+	// translate coords so origin is in the middle of the screen
+	x -= width / 2;
+	y -= height / 2;
+
+	let r = x*x + y*y;
+	let vx = -y / r;
+	let vy = x / r;
+
+	// return x and y components of the vector
+	return [vx, vy];
+}
+
+
+const noise = {
+	obj: new window.SimplexNoise(),
+	scale: 1 / 1000, // the smaller the value the closer the sampled values of the simplex noise will be
+	depth: 0,
+};
+
+function simplex(x, y) {
+	let theta = noise.obj.noise3D(x * noise.scale, y * noise.scale, noise.depth) * Math.PI;
+	return [Math.cos(theta), Math.sin(theta)];
 }
 
 
@@ -163,6 +131,11 @@ class FlowField {
 let canvas = undefined;
 let field = undefined;
 const width = 1800, height = 800;
+
+const particleCount = 1000;
+const maxParticleVelocity = 2.5;
+const minParticleSize = 20;
+const maxParticleSize = 30;
 
 function setup() {
 	let parent = document.getElementById("world");
@@ -173,7 +146,8 @@ function setup() {
 	frameRate(30);
 	background(255);
 
-	field = new FlowField(width, height);
+	const vectorFieldFunction = vortex;
+	field = new FlowField(width, height, particleCount, vectorFieldFunction);
 }
 
 function draw() {
@@ -182,4 +156,6 @@ function draw() {
 
 	colorMode(HSB);
 	field.draw();
+
+	noise.depth += 0.004;
 }
