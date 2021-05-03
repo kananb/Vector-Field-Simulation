@@ -8,7 +8,7 @@ class Particle {
 		this.bright = Math.random() * 60 + 40;
 
 		this.age = 0;
-		this.life = Math.random() * 1500 + 100;
+		this.life = Math.random() * 700 + 100;
 
 		this.trueSize = size;
 		this.size = 0;
@@ -30,7 +30,7 @@ class Particle {
 			if (parseInt(this.size) <= 0) {
 				this.size = 0;
 				this.age = 0;
-				this.life = Math.random() * 1500 + 1000;
+				this.life = Math.random() * 700 + 100;
 				this.setPos(Math.random() * width, Math.random() * height);
 			}
 		}
@@ -130,7 +130,7 @@ class FlowField {
 		this.height = height;
 
 		this.noise = new window.SimplexNoise();
-		this.scale = 1 / 10000;
+		this.scale = 1 / 1000;
 		this.depth = 0;
 
 		this.ratio = 1;
@@ -139,7 +139,7 @@ class FlowField {
 
 		this.particles = [];
 		for (let i = 0; i < count; ++i) {
-			this.particles.push(new Particle(Math.random() * this.width, Math.random() * this.height, 25));
+			this.particles.push(new Particle(Math.random() * this.width, Math.random() * this.height, Math.random() * 10 + 20));
 		}
 	}
 
