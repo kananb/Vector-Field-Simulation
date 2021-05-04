@@ -2,6 +2,8 @@ class FlowField {
 	constructor(width, height) {
 		this.width = width;
 		this.height = height;
+		this.dwidth = this.width * 0.15;
+		this.dheight = this.height * 0.15;
 		
 		this.particles = [];
 		this.setCount(0);
@@ -19,13 +21,13 @@ class FlowField {
 	setCount(count) {
 		while (this.particles.length < count) {
 			this.particles.push({
-				x: Math.random() * this.width,
-				y: Math.random() * this.height,
+				x: Math.random() * (this.width + this.dwidth * 2) - this.dwidth,
+				y: Math.random() * (this.height + this.dheight * 2) - this.dheight,
 				vx: 0, vy: 0,
 
 				age: 0,
 				life: Math.random() * 700 + 100,
-				size: 0,
+				size: 1,
 
 				saturation: Math.random() * 30 + 30,
 				brightness: Math.random() * 60 + 40,
@@ -62,17 +64,18 @@ class FlowField {
 			let p = this.particles[i];
 			if (p.age++ >= p.life) {
 				p.size -= this.sizeIncrement;
-				if (p.size <= 0.5) {
-					p.size = 0;
+				if (p.size <= 1) {
+					p.size = 1;
 					p.age = 0;
 
-					p.x = Math.random() * this.width;
-					p.y = Math.random() * this.height;
+					p.x = Math.random() * (this.width + this.dwidth * 2) - this.dwidth;
+					p.y =Math.random() * (this.height + this.dheight * 2) - this.dheight;
 					p.px = p.x; p.py = p.y; p.vx = 0; p.vy = 0;
 				}
 			}
 			else if (p.size < this.size) {
 				p.size += this.sizeIncrement;
+				if (p.size > this.size) p.size = this.size;
 			}
 			else if  (p.size > this.size) {
 				p.size -= this.sizeIncrement * 3;
@@ -91,9 +94,9 @@ class FlowField {
 			p.x += p.vx;
 			p.y += p.vy;
 	
-			if (p.x < -p.size || p.x >= this.width + p.size || p.y < -p.size || p.y >= this.height + p.size) {
+			if (p.x < -p.size - this.dwidth || p.x >= this.width + p.size + this.dwidth || p.y < -p.size - this.dheight || p.y >= this.height + p.size + this.dheight) {
 				p.age = p.life;
-				p.size = 0;
+				p.size = 1;
 			}
 		}
 	}
@@ -105,7 +108,7 @@ class FlowField {
 			if (theta < 0) theta += 360;
 
 			stroke(theta, p.saturation, p.brightness);
-			strokeWeight(p.size);
+			strokeWeight(parseInt(p.size));
 			line(p.x, p.y, p.px, p.py);
 		}
 	}
@@ -142,7 +145,13 @@ const controls = {
 
 
 function onCountChange(event) {
-	let count = Math.min(controls.count.max, parseInt(event.target.value));
+	let count;
+	if (event) {
+		count = Math.min(controls.count.max, parseInt(event.target.value));
+	}
+	else {
+		count = parseInt(controls.count.input.value);
+	}
 
 	controls.count.slider.value = count;
 	controls.count.input.value = count;
@@ -151,7 +160,13 @@ function onCountChange(event) {
 }
 
 function onSizeChange(event) {
-	let size = Math.min(controls.size.max, parseInt(event.target.value));
+	let size;
+	if (event) {
+		size = Math.min(controls.size.max, parseInt(event.target.value));
+	}
+	else {
+		size = parseInt(controls.size.input.value);
+	}
 
 	controls.size.slider.value = size;
 	controls.size.input.value = size;
@@ -160,7 +175,13 @@ function onSizeChange(event) {
 }
 
 function onMassChange(event) {
-	let mass = Math.min(controls.mass.max, parseFloat(event.target.value));
+	let mass;
+	if (event) {
+		mass = Math.min(controls.mass.max, parseFloat(event.target.value));
+	}
+	else {
+		mass = parseFloat(controls.mass.input.value);
+	}
 
 	controls.mass.slider.value = mass;
 	controls.mass.input.value = mass;
@@ -169,7 +190,13 @@ function onMassChange(event) {
 }
 
 function onVelocityChange(event) {
-	let velocity = Math.min(controls.velocity.max, parseFloat(event.target.value));
+	let velocity;
+	if (event) {
+		velocity = Math.min(controls.velocity.max, parseFloat(event.target.value));
+	}
+	else {
+		velocity = parseFloat(controls.velocity.input.value);
+	}
 
 	controls.velocity.slider.value = velocity;
 	controls.velocity.input.value = velocity;
@@ -190,6 +217,11 @@ function setHandlers() {
 
 	controls.velocity.slider.oninput = onVelocityChange;
 	controls.velocity.input.oninput = onVelocityChange;
+
+	onCountChange();
+	onSizeChange();
+	onMassChange();
+	onVelocityChange();
 }
 
 
@@ -198,7 +230,6 @@ let canvas = undefined;
 let field = undefined;
 
 function setup() {
-	setHandlers();
 	let display = document.querySelector("#display");
 	let width = display.clientWidth, height = display.clientHeight;
 
@@ -210,10 +241,7 @@ function setup() {
 	background(255);
 
 	field = new FlowField(width, height);
-	field.setCount(parseInt(controls.count.input.value));
-	field.setRadius(parseInt(controls.size.input.value));
-	field.setMass(parseInt(controls.mass.input.value));
-	field.setMaxVelocity(parseInt(controls.velocity.input.value));
+	setHandlers();
 }
 
 function vortex(x, y) {
