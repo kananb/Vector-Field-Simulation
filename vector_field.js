@@ -10,6 +10,8 @@ class FlowField {
 		this.setRadius(0);
 		this.setMass(1);
 		this.setMaxVelocity(0);
+
+		this.vectorFunction = new VectorFunction();
 	}
 
 	setDimensions(width, height) {
@@ -60,8 +62,18 @@ class FlowField {
 		this.maxVelocity = velocity;
 	}
 
+	setF1(f1) {
+		this.vectorFunction.setF1(f1);
+	}
 
-	update(F) {
+	setF2(f2) {
+		this.vectorFunction.setF2(f2);
+	}
+
+
+	update() {
+		if (!this.vectorFunction.eval) return;
+
 		for (let i = 0; i < this.count; ++i) {
 			let p = this.particles[i];
 			if (p.age++ >= p.life) {
@@ -83,7 +95,13 @@ class FlowField {
 				p.size -= Math.max(this.sizeIncrement, (p.size - this.size) / 50);
 			}
 	
-			let force = F(p.x, p.y);
+			let force;
+			try {
+				force = this.vectorFunction.eval(p.x - this.width / 2, p.y - height / 2);
+			} catch (err) {
+				this.vectorFunction.eval = undefined;
+				return;
+			}
 			p.vx += force[0] / this.mass;
 			p.vy += force[1] / this.mass;
 			let m = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
@@ -212,15 +230,29 @@ function onVelocityChange(event) {
 	field.setMaxVelocity(velocity);
 }
 
+function onF1Change(event) {
+	field.setF1(equations.f1.value);
+}
+
+function onF2Change(event) {
+	field.setF2(equations.f2.value);
+}
+
 function onHideToggle(event) {
 	menu.settings.classList.toggle("hidden");
 	menu.display.classList.toggle("full");
 	menu.show.classList.toggle("hidden");
-	canvasResize();
+	windowResized();
 }
 
 
 function setHandlers() {
+	equations.f1.oninput = onF1Change;
+	equations.f2.oninput = onF2Change;
+
+	onF1Change();
+	onF2Change();
+
 	controls.count.slider.oninput = onCountChange;
 	controls.count.input.oninput = onCountChange;
 
@@ -283,12 +315,10 @@ function draw() {
 	field.draw();
 }
 
-
-function canvasResize() {
+function windowResized() {
 	let display = document.querySelector("#display");
 	let width = display.clientWidth, height = display.clientHeight;
 	
 	resizeCanvas(width, height);
 	field.setDimensions(width, height);
 }
-window.onresize = canvasResize;
