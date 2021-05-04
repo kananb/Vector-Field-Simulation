@@ -65,7 +65,7 @@ class FlowField {
 		for (let i = 0; i < this.count; ++i) {
 			let p = this.particles[i];
 			if (p.age++ >= p.life) {
-				p.size -= this.sizeIncrement;
+				p.size -= (p.size <= this.size) ? this.sizeIncrement : (p.size - this.size) / 50;
 				if (p.size <= 1) {
 					p.size = 1;
 					p.age = 0;
@@ -80,7 +80,7 @@ class FlowField {
 				if (p.size > this.size) p.size = this.size;
 			}
 			else if  (p.size > this.size) {
-				p.size -= this.sizeIncrement * 3;
+				p.size -= Math.max(this.sizeIncrement, (p.size - this.size) / 50);
 			}
 	
 			let force = F(p.x, p.y);
