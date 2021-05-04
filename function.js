@@ -218,22 +218,40 @@ Parser.prototype.parse = function (input) {
 
 class Equation {
 	constructor(eq) {
+		this.specialOperators = [
+			["sqrt", "~", "Math.sqrt"],
+			["abs", "#", "Math.abs"],
+			["asin", "{", "Math.asin"],
+			["acos", "}", "Math.acos"],
+			["atan", "|", "Math.atan"],
+			["sin", "[", "Math.sin"],
+			["cos", "]", "Math.cos"],
+			["tan", "\\", "Math.tan"],
+			["ln", "$", "Math.log"],
+			["min", "<", "Math.min"],
+			["max", ">", "Math.max"],
+			["pow", "@", "Math.pow"],
+		];
+		let punctuatorString = "";
+		for (let op of this.specialOperators) {
+			punctuatorString += "\\" + op[1];
+		}
+		const punctuatorRegex = new RegExp(`[${punctuatorString}]`, "g");
+
 		this.lexer = new Lexer();
 		this.lexer.addRule(/\s+/, () => {}); // skip whitespace
-		this.lexer.addRule(/[\+\-\*\/\(\)\^\~]/, lexeme => lexeme); // punctuators: + - * / ( ) ^
-		this.lexer.addRule(/\-?(?:0|[1-9]\d*)(?:\.\d+)?/, lexeme => +lexeme); // numbers
-		this.lexer.addRule(/\-?(?:[a-zA-Z])?/, lexeme => lexeme); // variables
-
-		let left1 = { associativity: "left", precedence: 1 };
-		let left2 = { associativity: "left", precedence: 2 };
-		let left3 = { associativity: "left", precedence: 3 };
-		this.parser = new Parser({ "+": left1, "-": left1, "*": left2, "/": left2, "^": left3 });
+		this.lexer.addRule(/[\+\-\*\/\(\)\,]/, lexeme => lexeme); // basic punctuators
+		this.lexer.addRule(punctuatorRegex, lexeme => lexeme); // special punctuators
+		this.lexer.addRule(/(?:0|[1-9]\d*)(?:\.\d+)?/, lexeme => +lexeme); // numbers
+		this.lexer.addRule(/(?:[a-zA-Z])?/, lexeme => lexeme); // variables
 
 		if (eq) this.parse(eq);
 	}
 
 	parse(eq) {
-		eq = eq.replace("sqrt", "~");
+		for (let op of this.specialOperators) {
+			eq = eq.replaceAll(op[0], op[1]);
+		}
 		Array.fromIterator = it => Array.from({ [Symbol.iterator]: () => it });
 		this.step = value => ({ done: value === undefined, value });
 
@@ -248,23 +266,26 @@ class Equation {
 				if (prev && /[0-9a-zA-Z]/.test(prev)) tokens.splice(t, 0, "*");
 			}
 			else if (cur == ")") {
-				if (next && /[0-9a-zA-Z(]/.test(next)) tokens.splice(t + 1, 0, "*");
+				if (next && /[0-9a-zA-Z\(]/.test(next)) tokens.splice(t + 1, 0, "*");
 			}
 			else if (/[a-zA-Z]/.test(cur)) {
 				if (prev && /[0-9a-zA-Z]/.test(prev)) tokens.splice(t, 0, "*");
 				else if (next && /[0-9a-zA-Z]/.test(next)) tokens.splice(t + 1, 0, "*");
 			}
-			else if (cur == "^") {
-				if (prev && next) {
-					tokens.splice(t++ - 1, 0, "@(");
-					tokens.splice(t + 2, 0, ")");
-					tokens[t] = ",";
+			else {
+				for (let op of this.specialOperators) {
+					if (cur == op[1]) {
+						if (prev && /[0-9a-zA-Z\)]/.test(prev)) tokens.splice(t, 0, "*");
+						break;
+					}
 				}
-				t += 1;
 			}
 		}
 
-		this.expression = tokens.join("").replace("~", "Math.sqrt").replaceAll("@", "Math.pow");
+		this.expression = tokens.join("").replaceAll("@", "Math.pow");
+		for (let op of this.specialOperators) {
+			this.expression = this.expression.replaceAll(op[1], op[2]);
+		}
 	}
 }
 
@@ -284,6 +305,8 @@ class VectorFunction {
 			this.eval = undefined;
 		}
 		else {
+			console.log("f1: " + this.f1.expression);
+			console.log("f2: " + this.f2.expression);
 			this.eval = new Function(`return function(x, y) {
 				let dx = ${this.f1.expression};
 				let dy = ${this.f2.expression};

@@ -10,6 +10,7 @@ class FlowField {
 		this.setRadius(0);
 		this.setMass(1);
 		this.setMaxVelocity(0);
+		this.setZoom(1);
 
 		this.vectorFunction = new VectorFunction();
 	}
@@ -62,6 +63,10 @@ class FlowField {
 		this.maxVelocity = velocity;
 	}
 
+	setZoom(zoom) {
+		this.scale = zoom / 100;
+	}
+
 	setF1(f1) {
 		this.vectorFunction.setF1(f1);
 	}
@@ -97,7 +102,7 @@ class FlowField {
 	
 			let force;
 			try {
-				force = this.vectorFunction.eval(p.x - this.width / 2, p.y - height / 2);
+				force = this.vectorFunction.eval((p.x - this.width / 2) * this.scale, (p.y - height / 2) * this.scale);
 			} catch (err) {
 				this.vectorFunction.eval = undefined;
 				return;
@@ -160,6 +165,11 @@ const controls = {
 		slider: document.getElementById("velocity-slider"),
 		input: document.getElementById("velocity-input"),
 		max: parseInt(document.getElementById("velocity-slider").max),
+	},
+	zoom: {
+		slider: document.getElementById("zoom-slider"),
+		input: document.getElementById("zoom-input"),
+		max: parseInt(document.getElementById("zoom-slider").max),
 	},
 };
 const menu = {
@@ -230,6 +240,21 @@ function onVelocityChange(event) {
 	field.setMaxVelocity(velocity);
 }
 
+function onZoomChange(event) {
+	let zoom;
+	if (event) {
+		zoom = Math.min(controls.zoom.max, parseFloat(event.target.value));
+	}
+	else {
+		zoom = parseFloat(controls.zoom.input.value);
+	}
+
+	controls.zoom.slider.value = zoom;
+	controls.zoom.input.value = zoom;
+
+	field.setZoom(zoom);
+}
+
 function onF1Change(event) {
 	field.setF1(equations.f1.value);
 }
@@ -265,10 +290,14 @@ function setHandlers() {
 	controls.velocity.slider.oninput = onVelocityChange;
 	controls.velocity.input.oninput = onVelocityChange;
 
+	controls.zoom.slider.oninput = onZoomChange;
+	controls.zoom.input.oninput = onZoomChange;
+
 	onCountChange();
 	onSizeChange();
 	onMassChange();
 	onVelocityChange();
+	onZoomChange();
 
 
 	menu.hide.onclick = onHideToggle;
@@ -294,24 +323,12 @@ function setup() {
 	setHandlers();
 }
 
-function vortex(x, y) {
-	// translate coords so origin is in the middle of the screen
-	x -= width / 2;
-	y -= height / 2;
-
-	let r = x*x + y*y;
-	let vx = -y / r;
-	let vy = x / r;
-
-	// return x and y components of the vector
-	return [vx, vy];
-}
 function draw() {
 	colorMode(RGB);
 	background(0, 0, 0, 5);
 
 	colorMode(HSB);
-	field.update(vortex);
+	field.update();
 	field.draw();
 }
 
