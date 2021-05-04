@@ -38,7 +38,9 @@ class FlowField {
 
 		if (count < this.particles.length) {
 			for (let i = count; i < this.particles.length; ++i) {
-				this.particles[i].size = 0;
+				this.particles[i].size = 1;
+				this.particles[i].vx = 0;
+				this.particles[i].vy = 0;
 			}
 		}
 
@@ -142,6 +144,12 @@ const controls = {
 		max: parseInt(document.getElementById("velocity-slider").max),
 	},
 };
+const menu = {
+	display: document.getElementById("display"),
+	settings: document.getElementById("settings"),
+	hide: document.getElementById("hide-button"),
+	show: document.getElementById("show-button-wrapper"),
+}
 
 
 function onCountChange(event) {
@@ -204,6 +212,13 @@ function onVelocityChange(event) {
 	field.setMaxVelocity(velocity);
 }
 
+function onHideToggle(event) {
+	menu.settings.classList.toggle("hidden");
+	menu.display.classList.toggle("full");
+	menu.show.classList.toggle("hidden");
+	canvasResize();
+}
+
 
 function setHandlers() {
 	controls.count.slider.oninput = onCountChange;
@@ -222,6 +237,10 @@ function setHandlers() {
 	onSizeChange();
 	onMassChange();
 	onVelocityChange();
+
+
+	menu.hide.onclick = onHideToggle;
+	menu.show.onclick = onHideToggle;
 }
 
 
@@ -238,7 +257,6 @@ function setup() {
 	canvas.parent(display);
 
 	frameRate(35);
-	background(255);
 
 	field = new FlowField(width, height);
 	setHandlers();
@@ -266,10 +284,11 @@ function draw() {
 }
 
 
-window.onresize = () => {
+function canvasResize() {
 	let display = document.querySelector("#display");
 	let width = display.clientWidth, height = display.clientHeight;
 	
 	resizeCanvas(width, height);
 	field.setDimensions(width, height);
-};
+}
+window.onresize = canvasResize;

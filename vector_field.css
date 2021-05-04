@@ -55,19 +55,84 @@ h3 {
 
 #display {
 	width: 76%;
-}
 
+	z-index: -2;
+
+	background-color: black;
+}
+#display.full {
+	width: 100%;
+}
 
 #settings {
 	width: 24%;
 	height: 100%;
 	padding: 1%;
 
-	resize: horizontal;
-	overflow-x: scroll;
+	z-index: 2;
 
 	background-color: var(--bg_color);
 }
+#settings.hidden {
+	width: 0%;
+	display: none;
+}
+
+#hide-button {
+	padding: 0.25em 1em;
+	position: absolute;
+	bottom: 1%;
+
+	user-select: none;
+	border-radius: 4px;
+
+	background-color: var(--highlight_color);
+	transition: all .1s ease-in-out;
+}
+#hide-button:hover {
+	opacity: 0.7;
+	cursor: pointer;
+}
+#hide-button:active {
+	opacity: 9;
+}
+
+#show-button-wrapper {
+	width: 25%;
+	height: 30%;
+	position: fixed;
+	bottom: 0; right: 0;
+	
+	opacity: 0;
+	z-index: 0;
+
+	transition: all .75s ease-in-out;
+}
+#show-button-wrapper.hidden {
+	display: none;
+}
+#show-button-wrapper:hover {
+	opacity: 1;
+}
+#show-button {
+	padding: 0.25em 1em;
+	position: fixed;
+	bottom: 1%; right: 1%;
+
+	user-select: none;
+	border-radius: 4px;
+
+	background-color: var(--slider_color);
+	transition: all .1s ease-in-out;
+}
+#show-button:hover {
+	opacity: 0.8;
+	cursor: pointer;
+}
+#show-button:active {
+	opacity: 9;
+}
+
 
 .control-section {
 	width: 95%;
