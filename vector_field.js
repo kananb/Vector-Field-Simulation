@@ -102,13 +102,13 @@ class FlowField {
 	
 			let force;
 			try {
-				force = this.vectorFunction.eval((p.x - this.width / 2) * this.scale, (p.y - height / 2) * this.scale);
+				force = this.vectorFunction.eval((p.x - this.width / 2) * this.scale, -(p.y - this.height / 2) * this.scale);
 			} catch (err) {
 				this.vectorFunction.eval = undefined;
 				return;
 			}
 			p.vx += force[0] / this.mass;
-			p.vy += force[1] / this.mass;
+			p.vy += -force[1] / this.mass;
 			let m = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
 			if (m > this.maxVelocity) {
 				p.vx /= m / this.maxVelocity; p.vy /= m / this.maxVelocity;
@@ -189,6 +189,7 @@ function onCountChange(event) {
 	else {
 		count = parseInt(controls.count.input.value);
 	}
+	if (isNaN(count)) return;
 
 	controls.count.slider.value = count;
 	controls.count.input.value = count;
@@ -204,6 +205,7 @@ function onSizeChange(event) {
 	else {
 		size = parseInt(controls.size.input.value);
 	}
+	if (isNaN(size)) return;
 
 	controls.size.slider.value = size;
 	controls.size.input.value = size;
@@ -214,11 +216,12 @@ function onSizeChange(event) {
 function onMassChange(event) {
 	let mass;
 	if (event) {
-		mass = Math.min(controls.mass.max, parseFloat(event.target.value));
+		mass = parseFloat(event.target.value);
 	}
 	else {
 		mass = parseFloat(controls.mass.input.value);
 	}
+	if (isNaN(mass)) return;
 
 	controls.mass.slider.value = mass;
 	controls.mass.input.value = mass;
@@ -229,11 +232,12 @@ function onMassChange(event) {
 function onVelocityChange(event) {
 	let velocity;
 	if (event) {
-		velocity = Math.min(controls.velocity.max, parseFloat(event.target.value));
+		velocity = parseFloat(event.target.value);
 	}
 	else {
 		velocity = parseFloat(controls.velocity.input.value);
 	}
+	if (isNaN(velocity)) return;
 
 	controls.velocity.slider.value = velocity;
 	controls.velocity.input.value = velocity;
@@ -244,11 +248,12 @@ function onVelocityChange(event) {
 function onZoomChange(event) {
 	let zoom;
 	if (event) {
-		zoom = Math.min(controls.zoom.max, parseFloat(event.target.value));
+		zoom = parseFloat(event.target.value);
 	}
 	else {
 		zoom = parseFloat(controls.zoom.input.value);
 	}
+	if (isNaN(zoom)) return;
 
 	controls.zoom.slider.value = zoom;
 	controls.zoom.input.value = zoom;
