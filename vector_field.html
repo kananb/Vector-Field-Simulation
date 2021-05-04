@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<script src="p5.js"></script>
+	<script src="simplex.js"></script>
+	<script src="vector_field.js" defer></script>
+
+	<link rel="stylesheet" type="text/css" href="vector_field.css" /> 
+	<title>Vector Fields</title>
+</head>
+<body>
+	<section id="wrapper">
+		<section id="display">
+		</section>
+		<section id="settings">
+			<h1>Vector Field Simulator</h1>
+
+			<h2><span>Function</span></h2>
+			<div id="field-function">
+				<div class="function-component">
+					<h3>F<sub>1</sub>(x,y) =</h3>
+					<input id="function-f1" class="control-input" value="-y/(x^2+y^2)">
+				</div>
+				<div class="function-component">
+					<h3>F<sub>2</sub>(x,y) =</h3>
+					<input id="function-f2" class="control-input" value="-y/(x^2+y^2)">
+				</div>
+			</div>
+
+			<h2><span>Controls</span></h2>
+			<div class="control-section">
+				<h3>Particle Count</h3>
+				<div id="particle-count-pair" class="slider-pair">
+					<input id="count-slider" class="control-slider" type="range" min="0" max="3000" value="500">
+					<input id="count-input" class="control-number" type="number" value="500">
+				</div>
+			
+				<h3>Particle Size</h3>
+				<div id="particle-size-pair" class="slider-pair">
+					<input id="size-slider" class="control-slider" type="range" min="1" max="50" value="10">
+					<input id="size-input" class="control-number" type="number" value="10">
+				</div>
+
+				<h3>Particle Mass</h3>
+				<div id="particle-mass-pair" class="slider-pair">
+					<input id="mass-slider" class="control-slider" type="range" min="0.1" max="10" value="3" step="0.1">
+					<input id="mass-input" class="control-number" type="number" value="3" step="0.1">
+				</div>
+
+				<h3>Max Velocity</h3>
+				<div id="particle-velocity-pair" class="slider-pair">
+					<input id="velocity-slider" class="control-slider" type="range" min="0" max="10" value="5" step="0.1">
+					<input id="velocity-input" class="control-number" type="number" value="5" step="0.1">
+				</div>
+			</div>
+		</section>
+	</section>
+</body>
+</html>
