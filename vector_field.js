@@ -176,7 +176,8 @@ const menu = {
 	display: document.getElementById("display"),
 	settings: document.getElementById("settings"),
 	hide: document.getElementById("hide-button"),
-	show: document.getElementById("show-button-wrapper"),
+	show: document.getElementById("show-button"),
+	showWrapper: document.getElementById("show-button-wrapper"),
 }
 
 
@@ -266,7 +267,7 @@ function onF2Change(event) {
 function onHideToggle(event) {
 	menu.settings.classList.toggle("hidden");
 	menu.display.classList.toggle("full");
-	menu.show.classList.toggle("hidden");
+	menu.showWrapper.classList.toggle("hidden");
 	windowResized();
 }
 
