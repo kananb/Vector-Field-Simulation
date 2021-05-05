@@ -348,6 +348,7 @@ function setup() {
 	canvas.parent(display);
 
 	frameRate(35);
+	background(25);
 
 	field = new FlowField(width, height);
 	setHandlers();
@@ -367,5 +368,7 @@ function windowResized() {
 	let width = display.clientWidth, height = display.clientHeight;
 	
 	resizeCanvas(width, height);
+	colorMode(RGB);
+	background(25);
 	field.setDimensions(width, height);
 }
