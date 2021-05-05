@@ -157,26 +157,31 @@ const controls = {
 		slider: document.getElementById("count-slider"),
 		input: document.getElementById("count-input"),
 		max: parseInt(document.getElementById("count-slider").max),
+		min: parseInt(document.getElementById("count-slider").min),
 	},
 	size: {
 		slider: document.getElementById("size-slider"),
 		input: document.getElementById("size-input"),
 		max: parseInt(document.getElementById("size-slider").max),
+		min: parseInt(document.getElementById("size-slider").min),
 	},
 	mass: {
 		slider: document.getElementById("mass-slider"),
 		input: document.getElementById("mass-input"),
-		max: parseInt(document.getElementById("mass-slider").max),
+		max: parseFloat(document.getElementById("mass-slider").max),
+		min: parseFloat(document.getElementById("mass-slider").min),
 	},
 	velocity: {
 		slider: document.getElementById("velocity-slider"),
 		input: document.getElementById("velocity-input"),
-		max: parseInt(document.getElementById("velocity-slider").max),
+		max: parseFloat(document.getElementById("velocity-slider").max),
+		min: parseFloat(document.getElementById("velocity-slider").min),
 	},
 	zoom: {
 		slider: document.getElementById("zoom-slider"),
 		input: document.getElementById("zoom-input"),
-		max: parseInt(document.getElementById("zoom-slider").max),
+		max: parseFloat(document.getElementById("zoom-slider").max),
+		min: parseFloat(document.getElementById("zoom-slider").min),
 	},
 };
 const menu = {
@@ -191,7 +196,7 @@ const menu = {
 function onCountChange(event) {
 	let count;
 	if (event) {
-		count = Math.min(controls.count.max, parseInt(event.target.value));
+		count = Math.max(controls.count.min, Math.min(controls.count.max, parseInt(event.target.value)));
 	}
 	else {
 		count = parseInt(controls.count.input.value);
@@ -207,7 +212,7 @@ function onCountChange(event) {
 function onSizeChange(event) {
 	let size;
 	if (event) {
-		size = Math.min(controls.size.max, parseInt(event.target.value));
+		size = Math.max(controls.size.min, Math.min(controls.size.max, parseInt(event.target.value)));
 	}
 	else {
 		size = parseInt(controls.size.input.value);
@@ -223,7 +228,7 @@ function onSizeChange(event) {
 function onMassChange(event) {
 	let mass;
 	if (event) {
-		mass = parseFloat(event.target.value);
+		mass = Math.max(controls.mass.min, parseFloat(event.target.value));
 	}
 	else {
 		mass = parseFloat(controls.mass.input.value);
@@ -239,7 +244,7 @@ function onMassChange(event) {
 function onVelocityChange(event) {
 	let velocity;
 	if (event) {
-		velocity = parseFloat(event.target.value);
+		velocity = Math.max(controls.velocity.min, parseFloat(event.target.value));
 	}
 	else {
 		velocity = parseFloat(controls.velocity.input.value);
@@ -255,7 +260,7 @@ function onVelocityChange(event) {
 function onZoomChange(event) {
 	let zoom;
 	if (event) {
-		zoom = parseFloat(event.target.value);
+		zoom = Math.max(controls.zoom.min, parseFloat(event.target.value));
 	}
 	else {
 		zoom = parseFloat(controls.zoom.input.value);
