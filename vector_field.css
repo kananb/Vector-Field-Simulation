@@ -7,6 +7,7 @@
 	--slider_color: #6a6a7c;
 	--number_color: #6a6a7c;
 	--input_color: #d7d7e6;
+	--invalid_input_color: #e2c3c3;
 }
 html {
 	font-family: sans-serif;
@@ -213,4 +214,8 @@ h3 {
 
 	color: var(--font_color_dark);
 	background-color: var(--input_color);
+}
+.control-input.invalid {
+	outline: 2px solid #be4242;
+	background-color: var(--invalid_input_color);
 }

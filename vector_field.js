@@ -107,8 +107,15 @@ class FlowField {
 				this.vectorFunction.eval = undefined;
 				return;
 			}
-			p.vx += force[0] / this.mass;
-			p.vy += -force[1] / this.mass;
+			if (this.mass) {
+				p.vx += force[0] / this.mass;
+				p.vy += -force[1] / this.mass;
+			}
+			else {
+				p.vx = force[0] * this.maxVelocity;
+				p.vy = -force[1] * this.maxVelocity;
+			}
+			
 			let m = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
 			if (m > this.maxVelocity) {
 				p.vx /= m / this.maxVelocity; p.vy /= m / this.maxVelocity;
@@ -262,11 +269,23 @@ function onZoomChange(event) {
 }
 
 function onF1Change(event) {
-	field.setF1(equations.f1.value);
+	try {
+		field.setF1(equations.f1.value);
+		equations.f1.classList.remove("invalid");
+	}
+	catch (err) {
+		equations.f1.classList.add("invalid");
+	}
 }
 
 function onF2Change(event) {
-	field.setF2(equations.f2.value);
+	try {
+		field.setF2(equations.f2.value);
+		equations.f2.classList.remove("invalid");
+	}
+	catch (err) {
+		equations.f2.classList.add("invalid");
+	}
 }
 
 function onHideToggle(event) {
