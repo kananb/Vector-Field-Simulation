@@ -228,6 +228,7 @@ class Equation {
 			["cos", "]", "Math.cos"],
 			["tan", "\\", "Math.tan"],
 			["ln", "$", "Math.log"],
+			["exp", "?", "Math.exp"],
 			["min", "<", "Math.min"],
 			["max", ">", "Math.max"],
 			["pow", "@", "Math.pow"],
