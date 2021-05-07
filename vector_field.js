@@ -23,8 +23,8 @@ class FlowField {
 	}
 
 	addOffset(offsetX, offsetY) {
-		this.offsetX += offsetX;
-		this.offsetY += offsetY;
+		this.offsetX += offsetX * this.scale;
+		this.offsetY -= offsetY * this.scale;
 
 		this.refresh(false);
 	}
@@ -127,7 +127,7 @@ class FlowField {
 	
 			let force;
 			try {
-				force = this.vectorFunction.eval((p.x - this.width / 2 + this.offsetX) * this.scale, -(p.y - this.height / 2 + this.offsetY) * this.scale);
+				force = this.vectorFunction.eval((p.x - this.width / 2) * this.scale + this.offsetX, -(p.y - this.height / 2) * this.scale + this.offsetY);
 			} catch (err) {
 				this.vectorFunction.eval = undefined;
 				return;
