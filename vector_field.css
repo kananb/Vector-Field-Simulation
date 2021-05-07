@@ -83,10 +83,8 @@ h3 {
 	display: none;
 }
 
-#hide-button {
+.menu-button {
 	padding: 0.25em 1em;
-	position: absolute;
-	bottom: 1%;
 
 	user-select: none;
 	border-radius: 4px;
@@ -94,12 +92,23 @@ h3 {
 	background-color: var(--highlight_color);
 	transition: all .1s ease-in-out;
 }
-#hide-button:hover {
+.menu-button:hover {
 	opacity: 0.7;
 	cursor: pointer;
 }
-#hide-button:active {
+.menu-button:active {
 	opacity: 9;
+}
+
+#hide-button {
+	position: absolute;
+	bottom: 1%;
+}
+
+#origin-button {
+	position: absolute;
+	bottom: 1%;
+	right: 1%;
 }
 
 #show-button-wrapper {

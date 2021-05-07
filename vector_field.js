@@ -26,14 +26,12 @@ class FlowField {
 		this.offsetX += offsetX;
 		this.offsetY += offsetY;
 
-		for (let i = 0; i < this.count; ++i) {
-			let p = this.particles[i];
-			p.vx = p.vy = 0;
-		}
+		this.refresh(false);
 	}
 
 	resetOffset() {
-		this.addOffset(-this.offsetX, -this.offsetY);
+		this.offsetX = this.offsetY = 0;
+		this.refresh(false);
 	}
 	
 
@@ -92,13 +90,15 @@ class FlowField {
 	}
 
 
-	refresh() {
+	refresh(clear = true) {
 		for (let i = 0; i < this.count; ++i) {
 			let p = this.particles[i];
 			p.vx = p.vy = 0;
 		}
-		colorMode(RGB);
-		background(25);
+		if (clear) {
+			colorMode(RGB);
+			background(25);
+		}
 	}
 	
 	update() {
@@ -213,6 +213,7 @@ const menu = {
 	display: document.getElementById("display"),
 	settings: document.getElementById("settings"),
 	hide: document.getElementById("hide-button"),
+	origin: document.getElementById("origin-button"),
 	show: document.getElementById("show-button"),
 	showWrapper: document.getElementById("show-button-wrapper"),
 }
@@ -318,11 +319,16 @@ function onF2Change(event) {
 	}
 }
 
-function onHideToggle(event) {
+function onHideToggle() {
 	menu.settings.classList.toggle("hidden");
 	menu.display.classList.toggle("full");
 	menu.showWrapper.classList.toggle("hidden");
 	windowResized();
+}
+
+function onOriginClick() {
+	field.resetOffset();
+	field.refresh();
 }
 
 
@@ -358,6 +364,8 @@ function setHandlers() {
 	menu.hide.onclick = onHideToggle;
 	menu.show.onclick = onHideToggle;
 
+	menu.origin.onclick = onOriginClick;
+
 
 	let display = document.getElementById("display");
 	display.onmousedown = onMouseDown;
@@ -374,7 +382,7 @@ let mouseinfo = {
 	dragged: false,
 }
 
-function onMouseDown(event) {
+function onMouseDown() {
 	mouseinfo.pressed = true;
 }
 
@@ -385,7 +393,7 @@ function onMouseMove(event) {
 	}
 }
 
-function onMouseUp(event) {
+function onMouseUp() {
 	mouseinfo.pressed = false;
 	if (mouseinfo.dragged) {
 		field.refresh();
