@@ -4,6 +4,8 @@ class FlowField {
 		this.height = height;
 		this.dwidth = this.width * 0.15;
 		this.dheight = this.height * 0.15;
+		this.offsetX = 0;
+		this.offsetY = 0;
 		
 		this.particles = [];
 		this.setCount(0);
@@ -18,6 +20,20 @@ class FlowField {
 	setDimensions(width, height) {
 		this.width = width;
 		this.height = height;
+	}
+
+	addOffset(offsetX, offsetY) {
+		this.offsetX += offsetX;
+		this.offsetY += offsetY;
+
+		for (let i = 0; i < this.count; ++i) {
+			let p = this.particles[i];
+			p.vx = p.vy = 0;
+		}
+	}
+
+	resetOffset() {
+		this.addOffset(-this.offsetX, -this.offsetY);
 	}
 	
 
@@ -76,6 +92,15 @@ class FlowField {
 	}
 
 
+	refresh() {
+		for (let i = 0; i < this.count; ++i) {
+			let p = this.particles[i];
+			p.vx = p.vy = 0;
+		}
+		colorMode(RGB);
+		background(25);
+	}
+	
 	update() {
 		if (!this.vectorFunction.eval) return;
 
@@ -102,7 +127,7 @@ class FlowField {
 	
 			let force;
 			try {
-				force = this.vectorFunction.eval((p.x - this.width / 2) * this.scale, -(p.y - this.height / 2) * this.scale);
+				force = this.vectorFunction.eval((p.x - this.width / 2 + this.offsetX) * this.scale, -(p.y - this.height / 2 + this.offsetY) * this.scale);
 			} catch (err) {
 				this.vectorFunction.eval = undefined;
 				return;
@@ -263,7 +288,7 @@ function onZoomChange(event) {
 		zoom = Math.max(controls.zoom.min, parseFloat(event.target.value));
 	}
 	else {
-		zoom = parseFloat(controls.zoom.input.value);
+		zoom = Math.max(controls.zoom.min, parseFloat(controls.zoom.input.value));
 	}
 	if (isNaN(zoom)) return;
 
@@ -332,6 +357,46 @@ function setHandlers() {
 
 	menu.hide.onclick = onHideToggle;
 	menu.show.onclick = onHideToggle;
+
+
+	let display = document.getElementById("display");
+	display.onmousedown = onMouseDown;
+	display.onmousemove = onMouseMove;
+	display.onmouseup = onMouseUp;
+	display.onmousewheel = onMouseScroll;
+	display.addEventListener("DOMMouseScroll", onMouseScroll);
+}
+
+
+
+let mouseinfo = {
+	pressed: false,
+	dragged: false,
+}
+
+function onMouseDown(event) {
+	mouseinfo.pressed = true;
+}
+
+function onMouseMove(event) {
+	if (mouseinfo.pressed) {
+		field.addOffset(-event.movementX, -event.movementY);
+		mouseinfo.dragged = true;
+	}
+}
+
+function onMouseUp(event) {
+	mouseinfo.pressed = false;
+	if (mouseinfo.dragged) {
+		field.refresh();
+		mouseinfo.dragged = false;
+	}
+}
+
+function onMouseScroll(event) {
+	let delta = (event.wheelDelta / 60) || -(event.detail / 2);
+	controls.zoom.input.value = (parseFloat(controls.zoom.input.value) - 0.1 * delta).toFixed(2);
+	onZoomChange();
 }
 
 
