@@ -25,8 +25,13 @@ class FlowField {
 	addOffset(offsetX, offsetY) {
 		this.offsetX += offsetX * this.scale;
 		this.offsetY -= offsetY * this.scale;
-
-		this.refresh(false);
+		for (let i = 0; i < this.count; ++i) {
+			let p = this.particles[i];
+			p.px = p.x;
+			p.py = p.y;
+			p.x -= offsetX;
+			p.y -= offsetY;
+		}
 	}
 
 	resetOffset() {
@@ -390,14 +395,15 @@ function onMouseMove(event) {
 	if (mouseinfo.pressed) {
 		field.addOffset(-event.movementX, -event.movementY);
 		mouseinfo.dragged = true;
+		clearFull = true;
 	}
 }
 
 function onMouseUp() {
 	mouseinfo.pressed = false;
 	if (mouseinfo.dragged) {
-		field.refresh();
 		mouseinfo.dragged = false;
+		clearFull = false;
 	}
 }
 
@@ -411,6 +417,7 @@ function onMouseScroll(event) {
 
 let canvas = undefined;
 let field = undefined;
+let clearFull = false;
 
 function setup() {
 	let display = document.querySelector("#display");
@@ -429,7 +436,8 @@ function setup() {
 
 function draw() {
 	colorMode(RGB);
-	background(0, 0, 0, 5);
+	if (!clearFull) background(0, 0, 0, 5);
+	else background(25);
 
 	colorMode(HSB);
 	field.update();
